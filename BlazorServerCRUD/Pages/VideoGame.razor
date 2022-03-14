@@ -1,0 +1,72 @@
+﻿@page "/videogame"
+@page "/videogame/{id:int}"
+@inject IGameService GameService
+
+@if (Id == null)
+{
+    <h3>Create a new video game</h3>
+}
+else
+{
+    <h3>Edit "@game.Name"</h3>
+}
+
+<EditForm Model="game" OnSubmit="HandleSubmit">
+    <div>
+        <label for="name">Name</label>
+        <InputText id="name" @bind-Value="game.Name" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="developer">Developer</label>
+        <InputText id="developer" @bind-Value="game.Developer" class="form-control"></InputText>
+    </div>
+    <div>
+        <label for="release">Release</label>
+        <InputDate id="release" @bind-Value="game.Release" class="form-control"></InputDate>
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">@btnText</button>
+    @if (Id != null)
+    {
+        <button type="button" class="btn btn-danger" @onclick="DeleteGame">Delete Game</button>
+    }
+</EditForm>
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    Game game = new Game();
+
+    protected override void OnInitialized()
+    {
+        btnText = Id == null ? "Save New Game" : "Update Game";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            game = await GameService.GetSingleGame((int)Id);
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id == null)
+        {
+            await GameService.CreateGame(game);
+        }
+        else
+        {
+            await GameService.UpdateGame(game, (int)Id);
+        }
+    }
+
+    async Task DeleteGame()
+    {
+        await GameService.DeleteGame(game.Id);
+    }
+}

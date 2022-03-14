@@ -1,0 +1,50 @@
+﻿@page "/videogames"
+@inject IGameService GameService
+@inject NavigationManager NavigationManager
+
+<h3>Video Games</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Game</th>
+            <th>Developer</th>
+            <th>Release</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var game in GameService.Games)
+        {
+            <tr>
+                <td>@game.Name</td>
+                <td>@game.Developer</td>
+                <td>@game.Release?.ToShortDateString()</td>
+                <td>
+                    <button class="btn btn-primary"
+                        @onclick="(() => ShowGame(game.Id))">
+                        <i class="oi oi-pencil"></i>
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<button class="btn btn-primary" @onclick="CreateNewGame">Create New Game</button>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await GameService.LoadGames();
+    }
+
+    void ShowGame(int id)
+    {
+        NavigationManager.NavigateTo($"videogame/{id}");
+    }
+
+    void CreateNewGame()
+    {
+        NavigationManager.NavigateTo("videogame");
+    }
+}
